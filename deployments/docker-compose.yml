@@ -1,0 +1,88 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ../backend/Iot2Project   # <- pasta onde está o .csproj e Dockerfile
+      dockerfile: Dockerfile                  # <- nome do Dockerfile (sem caminho se estiver na mesma pasta)
+    ports:
+      - "8000:80"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/iotdb
+      - MQTT_BROKER=mqtt://mqtt_broker
+    depends_on:
+      - db
+      - mqtt_broker
+    networks:
+      - iot_network
+      
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../deployments/Dockerfile.frontend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+    networks:
+      - iot_network
+
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: iotdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - iot_network
+
+  mqtt_broker:
+    image: eclipse-mosquitto
+    container_name: mqtt_broker
+    restart: always
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - iot_network
+
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: kafka_broker
+    restart: always
+    environment:
+      KAFKA_CFG_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_CFG_BROKER_ID: 1
+    depends_on:
+      - zookeeper
+    networks:
+      - iot_network
+
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: zookeeper
+    restart: always
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+    networks:
+      - iot_network
+
+volumes:
+  postgres_data:
+
+networks:
+  iot_network:
+    driver: bridge
