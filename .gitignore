@@ -1,14 +1,15 @@
 # .NET
-*.user
-*.suo
-.vs/
 bin/
 obj/
-*.db
-*.sqlite
-*.log
+.vs/
+*.user
+*.suo
 
 # Docker
+deployments/mosquitto/data/
+deployments/mosquitto/log/
 postgres_data/
-mosquitto/data/
-mosquitto/log/
+
+# Outros
+*.log
+*.DS_Store
