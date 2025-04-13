@@ -1,15 +1,14 @@
 # .NET
-bin
-obj
-.vs
-.user
-.suo
+*.user
+*.suo
+.vs/
+bin/
+obj/
+*.db
+*.sqlite
+*.log
 
 # Docker
-postgres_data
-mosquittodata
-mosquittolog
-
-# Logs & temp
-.log
-.cache
+postgres_data/
+mosquitto/data/
+mosquitto/log/
