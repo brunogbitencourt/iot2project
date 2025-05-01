@@ -1,12 +1,10 @@
-version: "3.8"
-
 services:
   backend:
     build:
       context: ../backend   
       dockerfile: Iot2Project.API/Dockerfile
     ports:
-      - "8000:80"  # Host: 8000 → Container: 80
+      - "8000:80"
     environment:
       - DATABASE_URL=postgresql://user:password@db:5432/iotdb
       - MQTT_BROKER=mqtt://mqtt_broker
@@ -15,18 +13,6 @@ services:
       - mqtt_broker
     networks:
       - iot_network
-      
-
-#  frontend:
-#    build:
-#      context: ../frontend
-#      dockerfile: ../deployments/Dockerfile.frontend
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      - backend
-#    networks:
-#      - iot_network
 
   db:
     image: postgres:15
@@ -79,6 +65,17 @@ services:
       ALLOW_ANONYMOUS_LOGIN: "yes"
     networks:
       - iot_network
+
+  worker:
+    build:
+      context: ../backend/Iot2Project.Worker
+      dockerfile: Dockerfile
+    depends_on:
+      - mqtt_broker
+      - kafka
+    networks:
+      - iot_network
+
 
 volumes:
   postgres_data:
