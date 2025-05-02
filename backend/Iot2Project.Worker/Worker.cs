@@ -1,11 +1,25 @@
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Formatter;
-using System.Text;
+using Iot2Project.Domain.Interfaces;
+using Iot2Project.Infrastructure.Kafka;
 
 public class Worker : BackgroundService
 {
+    private readonly IKafkaProducer _kafkaProducer;
+    private readonly ILogger<Worker> _logger;
     private IMqttClient _mqttClient;
+
+    public Worker(IKafkaProducer kafkaProducer, ILogger<Worker> logger)
+    {
+        _kafkaProducer = kafkaProducer;
+        _logger = logger;
+    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -13,7 +27,7 @@ public class Worker : BackgroundService
         _mqttClient = factory.CreateMqttClient();
 
         var options = new MqttClientOptionsBuilder()
-            .WithTcpServer("test.mosquitto.org", 1883)
+            .WithTcpServer("test.mosquitto.org", 1883) // se estiver em container, use o nome do serviço
             .WithProtocolVersion(MqttProtocolVersion.V311)
             .Build();
 
@@ -21,16 +35,26 @@ public class Worker : BackgroundService
         {
             var topic = e.ApplicationMessage.Topic;
             var message = Encoding.UTF8.GetString(e.ApplicationMessage.Payload ?? Array.Empty<byte>());
-            Console.WriteLine($"Mensagem recebida no tópico '{topic}': {message}");
+            _logger.LogInformation("Mensagem recebida no tópico '{topic}': {message}", topic, message);
+
+            // Publica no Kafka
+            await _kafkaProducer.PublishAsync(topic, message);
         };
 
         _mqttClient.ConnectedAsync += async e =>
         {
-            Console.WriteLine("Conectado ao broker MQTT");
+            _logger.LogInformation("Conectado ao broker MQTT");
             await _mqttClient.SubscribeAsync("iot2/tanks/test");
         };
 
-        await _mqttClient.ConnectAsync(options, stoppingToken);
+        try
+        {
+            await _mqttClient.ConnectAsync(options, stoppingToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao conectar ao MQTT");
+        }
 
         while (!stoppingToken.IsCancellationRequested)
         {

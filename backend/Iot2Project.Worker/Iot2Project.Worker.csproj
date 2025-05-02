@@ -18,5 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Iot2Project.Infrastructure\Iot2Project.Infrastructure.csproj" />
+    <ProjectReference Include="..\Iot2Project.Domain\Iot2Project.Domain.csproj" />
   </ItemGroup>
 </Project>
