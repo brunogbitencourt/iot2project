@@ -1,23 +1,21 @@
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Formatter;
-using Iot2Project.Domain.Interfaces;
-using Iot2Project.Infrastructure.Kafka;
+using Iot2Project.Domain.Entities;
+using Iot2Project.Infrastructure.Messaging.Mqtt;
 
 public class Worker : BackgroundService
 {
-    private readonly IKafkaProducer _kafkaProducer;
+    private readonly MqttMessageForwarder _forwarder;
     private readonly ILogger<Worker> _logger;
     private IMqttClient _mqttClient;
 
-    public Worker(IKafkaProducer kafkaProducer, ILogger<Worker> logger)
+    public Worker(MqttMessageForwarder forwarder, ILogger<Worker> logger)
     {
-        _kafkaProducer = kafkaProducer;
+        _forwarder = forwarder;
         _logger = logger;
     }
 
@@ -27,7 +25,7 @@ public class Worker : BackgroundService
         _mqttClient = factory.CreateMqttClient();
 
         var options = new MqttClientOptionsBuilder()
-            .WithTcpServer("test.mosquitto.org", 1883) // se estiver em container, use o nome do serviço
+            .WithTcpServer("test.mosquitto.org", 1883) // ou nome do serviço docker, ex: mqtt_broker
             .WithProtocolVersion(MqttProtocolVersion.V311)
             .Build();
 
@@ -35,10 +33,17 @@ public class Worker : BackgroundService
         {
             var topic = e.ApplicationMessage.Topic;
             var message = Encoding.UTF8.GetString(e.ApplicationMessage.Payload ?? Array.Empty<byte>());
+
             _logger.LogInformation("Mensagem recebida no tópico '{topic}': {message}", topic, message);
 
-            // Publica no Kafka
-            await _kafkaProducer.PublishAsync(topic, message);
+            var mqttMessage = new MqttMessage
+            {
+                Topic = topic,
+                Payload = message
+            };
+
+            // Encaminha usando o forwarder
+            await _forwarder.ForwardAsync(mqttMessage);
         };
 
         _mqttClient.ConnectedAsync += async e =>
