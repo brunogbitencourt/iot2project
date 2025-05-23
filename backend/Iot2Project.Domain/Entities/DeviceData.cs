@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Iot2Project.Domain.Entities;
 
-namespace Iot2Project.Domain.Entities
+public class DeviceData
 {
-    internal class DeviceData
-    {
-    }
+    public int DeviceId { get; set; }
+    public DateTime Timestamp { get; set; }
+    public decimal? Value { get; set; }
+    public int? UserId { get; set; }
+    public string? Command { get; set; }
 }

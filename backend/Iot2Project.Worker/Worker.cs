@@ -23,9 +23,11 @@ public class Worker : BackgroundService
     {
         var factory = new MqttFactory();
         _mqttClient = factory.CreateMqttClient();
+        _logger.LogInformation(">>> Iniciando execução do Worker MQTT <<<");
+
 
         var options = new MqttClientOptionsBuilder()
-            .WithTcpServer("test.mosquitto.org", 1883) // ou nome do serviço docker, ex: mqtt_broker
+            .WithTcpServer("test.mosquitto.org", 1883) // ou "mqtt_broker" se estiver em container
             .WithProtocolVersion(MqttProtocolVersion.V311)
             .Build();
 
@@ -34,7 +36,7 @@ public class Worker : BackgroundService
             var topic = e.ApplicationMessage.Topic;
             var message = Encoding.UTF8.GetString(e.ApplicationMessage.Payload ?? Array.Empty<byte>());
 
-            _logger.LogInformation("Mensagem recebida no tópico '{topic}': {message}", topic, message);
+            _logger.LogInformation($"Mensagem recebida no tópico '{topic}': {message}");
 
             var mqttMessage = new MqttMessage
             {
@@ -42,19 +44,26 @@ public class Worker : BackgroundService
                 Payload = message
             };
 
-            // Encaminha usando o forwarder
             await _forwarder.ForwardAsync(mqttMessage);
         };
 
         _mqttClient.ConnectedAsync += async e =>
         {
             _logger.LogInformation("Conectado ao broker MQTT");
-            await _mqttClient.SubscribeAsync("iot2/tanks/test");
+
+            var response = await _mqttClient.SubscribeAsync("iot2/tanks/test");
+
+            foreach (var result in response.Items)
+            {
+                _logger.LogInformation("Assinatura no tópico: {topic}, status: {status}", result.TopicFilter.Topic, result.ResultCode);
+            }
         };
 
         try
         {
+            _logger.LogInformation("Tentando conectar ao broker MQTT...");
             await _mqttClient.ConnectAsync(options, stoppingToken);
+            _logger.LogInformation("Conexão MQTT realizada com sucesso.");
         }
         catch (Exception ex)
         {
