@@ -19,5 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Iot2Project.Infrastructure\Iot2Project.Infrastructure.csproj" />
     <ProjectReference Include="..\Iot2Project.Domain\Iot2Project.Domain.csproj" />
+    <ProjectReference Include="..\Iot2Project.Application\Iot2Project.Application.csproj" />
   </ItemGroup>
 </Project>

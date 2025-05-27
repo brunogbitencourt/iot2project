@@ -2,18 +2,18 @@
 using Iot2Project.Domain.Ports;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-
-namespace Iot2Project.Infrastructure.Messaging.Mqtt;
+using static Confluent.Kafka.ConfigPropertyNames;
 
 public sealed class KafkaMessagePublisher : IMessagePublisher, IAsyncDisposable
 {
-    private readonly IProducer<string, byte[]> _producer;
-    private readonly ILogger<KafkaMessagePublisher> _log;
+    private readonly IProducer<string, byte[]> _kafkaProducer;          // ← nome exclusivo
+    private readonly ILogger<KafkaMessagePublisher> _logger;
 
-    public KafkaMessagePublisher(IConfiguration cfg,
-                                 ILogger<KafkaMessagePublisher> log)
+    public KafkaMessagePublisher(
+        IConfiguration cfg,
+        ILogger<KafkaMessagePublisher> logger)
     {
-        _log = log;
+        _logger = logger;
 
         var config = new ProducerConfig
         {
@@ -21,20 +21,19 @@ public sealed class KafkaMessagePublisher : IMessagePublisher, IAsyncDisposable
             Acks = Acks.All
         };
 
-        _producer = new ProducerBuilder<string, byte[]>(config).Build();
+        _kafkaProducer = new ProducerBuilder<string, byte[]>(config).Build();
     }
 
     public async Task PublishAsync(string topic, byte[] payload, CancellationToken ct = default)
     {
         var msg = new Message<string, byte[]> { Value = payload };
-
-        await _producer.ProduceAsync(topic, msg, ct);
-        _log.LogDebug("Kafka ↑ {Topic} ({Size} B)", topic, payload.Length);
+        await _kafkaProducer.ProduceAsync(topic, msg, ct);
+        _logger.LogDebug("Kafka ↑ {Topic} ({Size} B)", topic, payload.Length);
     }
 
     public ValueTask DisposeAsync()
     {
-        _producer.Dispose(); // método síncrono
+        _kafkaProducer.Dispose(); // método síncrono
         return ValueTask.CompletedTask;
     }
 
