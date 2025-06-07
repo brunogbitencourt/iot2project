@@ -1,10 +1,15 @@
 ﻿using System.Text.Json;
 using Confluent.Kafka;
-using Iot2Project.Application.Interfaces;
+using Confluent.Kafka.Admin;
+using Iot2Project.Domain.Ports;
 using Iot2Project.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Iot2Project.Application.Interfaces;
 
 namespace Iot2Project.Worker.Kafka
 {
@@ -18,83 +23,113 @@ namespace Iot2Project.Worker.Kafka
             ILogger<KafkaDeviceDataConsumer> logger,
             IServiceScopeFactory scopeFactory)
         {
-            _logger = logger;
+            _logger       = logger;
             _scopeFactory = scopeFactory;
-
-            _config = new ConsumerConfig
+            _config       = new ConsumerConfig
             {
-                BootstrapServers = "kafka:9092", // Se estiver fora do container, use "localhost:9092"
-                GroupId = "iot2-group",
-                AutoOffsetReset = AutoOffsetReset.Earliest,
-                EnableAutoCommit = true
+                BootstrapServers  = "kafka:9092",
+                GroupId           = "iot2-group",
+                AutoOffsetReset   = AutoOffsetReset.Earliest,
+                EnableAutoCommit  = true
             };
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Kafka consumer iniciado para o tópico 'device-data'.");
+            _logger.LogInformation("Kafka consumer iniciando...");
 
-            try
+            using var consumer = new ConsumerBuilder<Ignore, string>(_config).Build();
+            using var admin = new AdminClientBuilder(_config).Build();
+
+            // 1) Busca todos os kafka_topic no banco
+            using (var scope = _scopeFactory.CreateScope())
             {
-                using var consumer = new ConsumerBuilder<Ignore, string>(_config).Build();
-                //consumer.Subscribe("device-data");
-                consumer.Subscribe("iot2-tanks-test"); // <- agora igual ao producer
+                var deviceRepo = scope.ServiceProvider.GetRequiredService<IDeviceRepository>();
+                var devices = await deviceRepo.GetAllAsync();
+                var topics = devices
+                    .Select(d => d.KafkaTopic)
+                    .Where(t => !string.IsNullOrWhiteSpace(t))
+                    .Distinct()
+                    .ToList();
 
-
-                while (!stoppingToken.IsCancellationRequested)
+                if (!topics.Any())
                 {
+                    _logger.LogWarning("Nenhum kafka_topic encontrado no banco. Consumer não irá se inscrever em nada.");
+                }
+                else
+                {
+                    // 2) Cria todos os tópicos via Admin API (se já existirem, apenas captura o warning)
                     try
                     {
-                        var result = consumer.Consume(stoppingToken);
-                        _logger.LogInformation("Mensagem Kafka recebida: {0}", result.Message.Value);
+                        var specs = topics
+                            .Select(t => new TopicSpecification { Name = t, NumPartitions = 1, ReplicationFactor = 1 })
+                            .ToList();
 
-                        using var scope = _scopeFactory.CreateScope();
-                        var repo = scope.ServiceProvider.GetRequiredService<IDeviceDataRepository>();
-
-                        var data = JsonSerializer.Deserialize<DeviceData>(
-                                     result.Message.Value,
-                                        new JsonSerializerOptions
-                                        {
-                                            PropertyNameCaseInsensitive = true
-                                        });
-
-                        if (data != null)
-                        {
-
-                            _logger.LogInformation("Preparando para salvar: deviceId={0}, value={1}, timestamp={2}",
-                                data?.DeviceId, data?.Value, data?.Timestamp);
-                            await repo.SaveAsync(data);
-                            _logger.LogInformation("Mensagem persistida com sucesso.");
-                        }
-                        else
-                        {
-                            _logger.LogWarning("Mensagem Kafka inválida ou nula.");
-                        }
+                        await admin.CreateTopicsAsync(specs);
+                        _logger.LogInformation("Tópicos Kafka garantidos/criados: {Topics}", string.Join(", ", topics));
                     }
-                    catch (ConsumeException ce)
+                    catch (CreateTopicsException cte)
                     {
-                        _logger.LogError(ce, "Erro ao consumir mensagem do Kafka.");
-                        await Task.Delay(3000, stoppingToken);
+                        _logger.LogWarning("Alguns tópicos não puderam ser criados: {Error}",
+                            string.Join(", ", cte.Results.Select(r => r.Error.Reason)));
                     }
-                    catch (JsonException je)
+
+                    // 3) Inscreve o consumer em todos
+                    consumer.Subscribe(topics);
+                    _logger.LogInformation("Consumer inscrito em tópicos: {Topics}", string.Join(", ", topics));
+                }
+            }
+
+            _logger.LogInformation("Kafka consumer iniciado com assinaturas dinâmicas.");
+
+            // 4) Loop de consumo
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                try
+                {
+                    var result = consumer.Consume(stoppingToken);
+                    _logger.LogInformation("Mensagem Kafka recebida (tópico={Topic}): {Value}", result.Topic, result.Message.Value);
+
+                    using var scope = _scopeFactory.CreateScope();
+                    var repo = scope.ServiceProvider.GetRequiredService<IDeviceDataRepository>();
+
+                    var data = JsonSerializer.Deserialize<DeviceData>(
+                        result.Message.Value,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (data != null)
                     {
-                        _logger.LogError(je, "Erro ao desserializar mensagem Kafka.");
-                        await Task.Delay(3000, stoppingToken);
+                        _logger.LogInformation(
+                            "Persistindo: deviceId={DeviceId}, value={Value}, timestamp={Timestamp}",
+                            data.DeviceId, data.Value, data.Timestamp);
+
+                        await repo.SaveAsync(data);
+                        _logger.LogInformation("Mensagem persistida com sucesso.");
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        _logger.LogError(ex, "Erro inesperado no processamento da mensagem.");
-                        await Task.Delay(3000, stoppingToken);
+                        _logger.LogWarning("Payload Kafka inválido ou nulo.");
                     }
                 }
+                catch (ConsumeException ce)
+                {
+                    _logger.LogError(ce, "Erro ao consumir mensagem.");
+                    await Task.Delay(3000, stoppingToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    _logger.LogWarning("Cancelamento solicitado. Encerrando consumer Kafka.");
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Erro inesperado no consumer Kafka.");
+                    await Task.Delay(3000, stoppingToken);
+                }
+            }
 
-                consumer.Close();
-            }
-            catch (Exception fatal)
-            {
-                _logger.LogCritical(fatal, "Erro fatal ao iniciar KafkaDeviceDataConsumer.");
-                await Task.Delay(5000, stoppingToken);
-            }
+            consumer.Close();
+            _logger.LogInformation("Consumer Kafka finalizado.");
         }
     }
 }

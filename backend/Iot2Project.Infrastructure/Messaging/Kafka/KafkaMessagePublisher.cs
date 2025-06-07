@@ -1,19 +1,20 @@
-﻿using Confluent.Kafka;
+﻿using System.Text.Json;
+using Confluent.Kafka;
+using Iot2Project.Domain.Entities;
 using Iot2Project.Domain.Ports;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using static Confluent.Kafka.ConfigPropertyNames;
 
-public sealed class KafkaMessagePublisher : IMessagePublisher, IAsyncDisposable
+namespace Iot2Project.Infrastructure.Messaging.Kafka;
+
+public class KafkaMessagePublisher : IMessagePublisher
 {
-    private readonly IProducer<string, byte[]> _kafkaProducer;          // ← nome exclusivo
-    private readonly ILogger<KafkaMessagePublisher> _logger;
+    private readonly IProducer<string, string> _producer;
+    private readonly ILogger<KafkaMessagePublisher> _log;
 
-    public KafkaMessagePublisher(
-        IConfiguration cfg,
-        ILogger<KafkaMessagePublisher> logger)
+    public KafkaMessagePublisher(IConfiguration cfg, ILogger<KafkaMessagePublisher> log)
     {
-        _logger = logger;
+        _log = log;
 
         var config = new ProducerConfig
         {
@@ -21,20 +22,32 @@ public sealed class KafkaMessagePublisher : IMessagePublisher, IAsyncDisposable
             Acks = Acks.All
         };
 
-        _kafkaProducer = new ProducerBuilder<string, byte[]>(config).Build();
+        _producer = new ProducerBuilder<string, string>(config).Build();
     }
 
-    public async Task PublishAsync(string topic, byte[] payload, CancellationToken ct = default)
+    public async Task PublishAsync(string topic, DeviceData data, CancellationToken ct = default)
     {
-        var msg = new Message<string, byte[]> { Value = payload };
-        await _kafkaProducer.ProduceAsync(topic, msg, ct);
-        _logger.LogDebug("Kafka ↑ {Topic} ({Size} B)", topic, payload.Length);
+        var json = JsonSerializer.Serialize(data);
+        var msg = new Message<string, string>
+        {
+            Key = data.DeviceId.ToString(),
+            Value = json
+        };
+
+        try
+        {
+            var result = await _producer.ProduceAsync(topic, msg, ct);
+            _log.LogDebug("Kafka ↑ {Topic} ({Offset})", topic, result.Offset);
+        }
+        catch (ProduceException<string, string> ex)
+        {
+            _log.LogError(ex, "Erro ao publicar mensagem no Kafka (topic={Topic})", topic);
+        }
     }
 
     public ValueTask DisposeAsync()
     {
-        _kafkaProducer.Dispose(); // método síncrono
+        _producer.Dispose();
         return ValueTask.CompletedTask;
     }
-
 }
