@@ -7,7 +7,7 @@ using System.Data;
 using Iot2Project.Domain.Ports;
 using Iot2Project.Application.Interfaces;
 
-using Iot2Project.Infrastructure.Messaging.Mqtt;
+using Iot2Project.Infrastructure.Messaging.Kafka;
 using Iot2Project.Infrastructure.Persistence.Context;
 using Iot2Project.Infrastructure.Persistence.Repositories;
 using Iot2Project.Worker.Kafka;
@@ -22,12 +22,15 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
         services.AddSingleton<IMessagePublisher, KafkaMessagePublisher>();
+
         services.Configure<TopicRoutingOptions>(context.Configuration.GetSection("TopicRouting"));
 
         services.AddSingleton<IDbConnectionFactory, PgsqlConnectionFactory>();
         services.AddScoped<IDbConnection>(provider =>
             provider.GetRequiredService<IDbConnectionFactory>().CreateConnection());
         services.AddScoped<IDeviceDataRepository, DeviceDataRepository>();
+        services.AddScoped<IDeviceRepository, DeviceRepository>();
+
 
         // MQTT dependencies
         services.AddSingleton<IMqttClient>(_ => new MqttFactory().CreateMqttClient());

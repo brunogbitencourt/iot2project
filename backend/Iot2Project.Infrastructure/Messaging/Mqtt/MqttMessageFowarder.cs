@@ -2,10 +2,13 @@
 using Iot2Project.Domain.Ports;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Iot2Project.Domain.Ports; // onde está IMessagePublisher
 
 namespace Iot2Project.Infrastructure.Messaging.Mqtt;
 
-public sealed class KafkaMessagePublisher : IMessagePublisher, IAsyncDisposable
+
+public class KafkaMessagePublisher 
+
 {
     private readonly IProducer<string, byte[]> _producer;
     private readonly ILogger<KafkaMessagePublisher> _log;

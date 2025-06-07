@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Iot2Project.Domain.Ports;
 
-public interface IMessagePublisher
+public interface IMqttForwarder
 {
-    Task PublishAsync(string topic, DeviceData data, CancellationToken ct = default);
+    Task ForwardAsync(DeviceData data, CancellationToken ct = default, string kafkaTopic = "");
 }
