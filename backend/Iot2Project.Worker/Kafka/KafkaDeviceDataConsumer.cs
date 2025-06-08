@@ -52,7 +52,7 @@ namespace Iot2Project.Worker.Kafka
                     .Distinct()
                     .ToList();
 
-                if (!topics.Any())
+                if (topics.Count==0)
                 {
                     _logger.LogWarning("Nenhum kafka_topic encontrado no banco. Consumer não irá se inscrever em nada.");
                 }

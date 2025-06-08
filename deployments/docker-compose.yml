@@ -1,20 +1,6 @@
 version: '3.8'
 
 services:
-  backend:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
-    ports:
-      - "8000:80"
-    environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/iotdb
-      - MQTT_BROKER=mqtt://mqtt_broker
-    depends_on:
-      - db
-      - mqtt_broker
-    networks:
-      - iot_network
 
   db:
     image: postgres:15
@@ -76,6 +62,22 @@ services:
       - Kafka__DefaultTopic=iot2-tanks-test
     networks:
       - iot_network
+  
+  api:
+    build:
+      context: ../backend
+      dockerfile: Iot2Project.API/Dockerfile
+    ports:
+      - "5000:8080"                   # 5000 na sua máquina → 80 no container
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production     # (já vem por default)
+      - ConnectionStrings__Default=Host=db;Port=5432;Database=iotdb;Username=user;Password=password
+      - DATABASE_URL=postgresql://user:password@db:5432/iotdb
+    depends_on:
+      - db
+    networks:
+      - iot_network
+
 
 volumes:
   postgres_data:

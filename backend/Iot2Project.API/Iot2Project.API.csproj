@@ -6,6 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>33639deb-a78f-4a62-bdd7-3f1eecb8f029</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	  <NoWarn>$(NoWarn);1591</NoWarn>
+	  <!-- suprime avisos de doc faltando -->
   </PropertyGroup>
 
   <ItemGroup>
