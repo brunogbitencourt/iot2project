@@ -86,4 +86,15 @@
     color: #64748b;
     margin: 1rem 0;
   }
+
+  /* estiliza labels que têm a classe .required */
+.field label.required::after {
+  content: '*';
+  color: #dc2626;   /* vermelho */
+  margin-left: 0.25rem;
+  font-weight: bold;
+}
+
+
+
 }
