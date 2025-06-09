@@ -1,0 +1,60 @@
+<div class="usuarios-page">
+  <h2>Gestão de Usuários</h2>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="user-form">
+    <div class="fields">
+      <div class="field">
+        <label>Nome</label>
+        <input type="text" formControlName="FullName" placeholder="Nome completo" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" formControlName="Email" placeholder="usuario@exemplo.com" />
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" formControlName="Password" placeholder="••••••••" />
+      </div>
+      <div class="field">
+        <label>Perfil</label>
+        <input type="number" formControlName="UserProfileId" placeholder="ID do perfil" />
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="loading">
+      {{ editingId ? 'Atualizar' : 'Criar' }}
+    </button>
+    <button type="button" class="secondary" (click)="resetForm()" [disabled]="loading">
+      Limpar
+    </button>
+  </form>
+
+  <table class="user-table" *ngIf="!loading && users.length">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Perfil</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let u of users">
+        <td>{{ u.UserId }}</td>
+        <td>{{ u.FullName }}</td>
+        <td>{{ u.Email }}</td>
+        <td>{{ u.UserProfileId }}</td>
+        <td class="actions">
+          <button (click)="edit(u)">✏️</button>
+          <button (click)="delete(u.UserId)">🗑️</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="no-data" *ngIf="!loading && users.length === 0">
+    Nenhum usuário encontrado.
+  </div>
+  <div class="loading" *ngIf="loading">Carregando...</div>
+</div>

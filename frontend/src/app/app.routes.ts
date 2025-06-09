@@ -1,30 +1,28 @@
+// src/app/app.routes.ts
 import { Routes } from '@angular/router';
-import { LoginComponent }                from '../presentation/components/login/login.component';
-import { MainComponent }                 from '../presentation/components/main/main.component';
-import { DispositivosComponent }         from '../presentation/components/dispositivos/dispositivos.component';
-import { UsuariosComponent }             from '../presentation/components/usuarios/usuarios.component';
-import { PlantaIndustrialComponent }     from '../presentation/components/planta-industrial/planta-industrial.component';
+import { LoginComponent }           from '../presentation/components/login/login.component';
+import { AppComponent }             from './app.component';
+import { MainComponent }            from '../presentation/components/main/main.component';
+import { DispositivosComponent }    from '../presentation/components/dispositivos/dispositivos.component';
+import { UsuariosPageComponent }    from '../presentation/components/usuarios/usuarios-page.component';
+import { PlantaIndustrialComponent } from '../presentation/components/planta-industrial/planta-industrial.component';
 
 export const routes: Routes = [
-  // Se ninguém apontar rota, vai direto p/ Main → Dispositivos
+  // Raiz -> login ou main direto? Se quiser pular login, vamos direto ao main:
   { path: '', redirectTo: 'main', pathMatch: 'full' },
-
-  // Login em /login se você quiser manter
   { path: 'login', component: LoginComponent },
 
-  // Layout principal com menu
   {
     path: 'main',
     component: MainComponent,
     children: [
-      // default filho: dispositivos
       { path: '', redirectTo: 'dispositivos', pathMatch: 'full' },
       { path: 'dispositivos', component: DispositivosComponent },
-      { path: 'usuarios', component: UsuariosComponent },
+      { path: 'usuarios',     component: UsuariosPageComponent },
       { path: 'planta-industrial', component: PlantaIndustrialComponent }
     ]
   },
 
-  // qualquer outra URL cai no main
+  // Qualquer outra URL:
   { path: '**', redirectTo: 'main' }
 ];

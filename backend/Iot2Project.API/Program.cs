@@ -42,6 +42,19 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy
+              .AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+        });
+});
+
 //-------------------------------------------------------------
 // 3)  PostgreSQL + Dapper (Connection Factory)
 //-------------------------------------------------------------
@@ -75,7 +88,7 @@ var app = builder.Build();
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();                // ← habilita UsersController
-
+app.UseCors("AllowAll");
 app.Run();
 
 //-------------------------------------------------------------
