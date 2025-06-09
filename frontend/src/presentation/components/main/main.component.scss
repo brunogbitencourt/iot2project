@@ -1,0 +1,67 @@
+// src/presentation/components/main/main.component.scss
+
+// Import opcional (já puxado no index.html) se quiser reforçar no SCSS:
+// @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+$font-family:      'Inter', sans-serif;
+$primary-color:    #1e3a8a;
+$secondary-color:  #3b82f6;
+$background:       #f0f4ff;
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: $background;
+  font-family: $font-family;   // aplica em todo o layout
+}
+
+// Barra de navegação superior
+.navbar {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 0.75rem 1rem;
+}
+
+.nav {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+
+  a {
+    position: relative;
+    font-family: $font-family;
+    font-weight: 500;
+    font-size: 1rem;
+    color: $primary-color;
+    text-decoration: none;
+    padding: 0.75rem 0;
+    transition: color 0.2s, transform 0.1s;
+
+    &:hover {
+      color: $secondary-color;
+      transform: translateY(-2px);
+    }
+
+    &.active {
+      color: $secondary-color;
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -0.3rem;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: $secondary-color;
+        border-radius: 2px;
+      }
+    }
+  }
+}
+
+// Área de conteúdo
+.content {
+  flex: 1;
+  padding: 2.5rem;
+  font-family: $font-family;
+}

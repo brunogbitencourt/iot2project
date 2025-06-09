@@ -42,19 +42,8 @@ export class LoginComponent {
   }
 
   async onSubmit() {
-    if (this.form.invalid) return;
-    this.loading = true; this.error = null;
-    try {
-      const { access, refresh } = await this.auth.signIn(
-        this.form.value.email!,
-        this.form.value.password!
-      );
-      this.store.save(access.value, refresh.value);
-      this.router.navigate(['/dashboard']);
-    } catch (e: any) {
-      this.error = e.message || 'Falha no login';
-    } finally {
-      this.loading = false;
-    }
+    // Após salvar o token...
+        this.router.navigate(['/main']);
+
   }
 }
