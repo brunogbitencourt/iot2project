@@ -1,0 +1,27 @@
+<div class="login-card">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <h2>Login</h2>
+
+    <label for="email">Email</label>
+    <input id="email" formControlName="email" type="email" placeholder="seu@exemplo.com" />
+    <div class="error"
+         *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+      Insira um email válido.
+    </div>
+
+    <label for="password">Senha</label>
+    <input id="password" formControlName="password" type="password" placeholder="••••••••" />
+    <div class="error"
+         *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
+      Senha com no mínimo
+      {{ form.get('password')?.errors?.['minlength']?.requiredLength }}
+      caracteres.
+    </div>
+
+    <button type="submit" [disabled]="loading">
+      {{ loading ? 'Entrando...' : 'Entrar' }}
+    </button>
+
+    <div class="error" *ngIf="error">{{ error }}</div>
+  </form>
+</div>

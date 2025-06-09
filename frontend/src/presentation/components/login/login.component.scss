@@ -1,0 +1,103 @@
+// login.component.scss
+
+// 1) Importa a fonte Poppins
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+// 2) Variáveis de estilo
+$font-family:       'Poppins', sans-serif;
+$primary-color:     #1e3a8a;
+$secondary-color:   #3b82f6;
+$background:        #f0f4ff;
+$error-color:       #dc2626;
+
+// 3) Escopo do componente
+:host {
+  display: block;
+  min-height: 100vh;
+  background: linear-gradient(135deg, $background 0%, white 100%);
+  padding: 1rem;
+  font-family: $font-family;
+}
+
+// 4) Card de login
+.login-card {
+  max-width: 380px;
+  margin: 6rem auto;
+  padding: 2.5rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border-top: 4px solid $secondary-color;
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: $primary-color;
+    font-size: 1.75rem;
+    font-weight: 600;
+    font-family: $font-family;
+  }
+
+  label {
+    display: block;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+    color: $primary-color;
+    font-family: $font-family;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid lighten($primary-color, 40%);
+    border-radius: 6px;
+    background: $background;
+    transition: border-color 0.2s, background 0.2s;
+    font-family: $font-family;
+
+    &:focus {
+      outline: none;
+      border-color: $secondary-color;
+      background: white;
+    }
+
+    &::placeholder {
+      color: darken($background, 30%);
+      font-family: $font-family;
+    }
+  }
+
+  .error {
+    color: $error-color;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    font-family: $font-family;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 1.75rem;
+    padding: 0.75rem;
+    background: $secondary-color;
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    font-family: $font-family;
+
+    &:hover {
+      background: darken($secondary-color, 10%);
+    }
+    &:active {
+      transform: scale(0.98);
+    }
+    &:disabled {
+      background: lighten($secondary-color, 20%);
+      cursor: default;
+    }
+  }
+}
