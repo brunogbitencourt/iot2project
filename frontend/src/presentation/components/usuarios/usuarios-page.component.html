@@ -1,34 +1,94 @@
 <div class="usuarios-page">
   <h2>Gestão de Usuários</h2>
 
+  <!-- Formulário -->
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="user-form">
     <div class="fields">
+      <!-- Nome -->
       <div class="field">
-        <label>Nome</label>
-        <input type="text" formControlName="FullName" placeholder="Nome completo" />
+        <label for="fullname">Nome Completo</label>
+        <input
+          id="fullname"
+          type="text"
+          formControlName="FullName"
+          placeholder="Nome completo"
+        />
+        <div class="error" *ngIf="form.get('FullName')?.errors">
+          {{ form.get('FullName')?.errors?.['required']
+             ? 'Nome é obrigatório.'
+             : form.get('FullName')?.errors?.['serverError'] }}
+        </div>
       </div>
+
+      <!-- Email -->
       <div class="field">
-        <label>Email</label>
-        <input type="email" formControlName="Email" placeholder="usuario@exemplo.com" />
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="Email"
+          placeholder="usuario@exemplo.com"
+        />
+        <div class="error" *ngIf="form.get('Email')?.errors">
+          {{ form.get('Email')?.errors?.['required']
+             ? 'Email é obrigatório.'
+             : form.get('Email')?.errors?.['email']
+               ? 'Insira um email válido.'
+               : form.get('Email')?.errors?.['serverError'] }}
+        </div>
       </div>
+
+      <!-- Senha -->
       <div class="field">
-        <label>Senha</label>
-        <input type="password" formControlName="Password" placeholder="••••••••" />
+        <label for="password">Senha</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="Password"
+          placeholder="••••••••"
+          autocomplete="new-password"
+        />
+        <div class="error" *ngIf="form.get('Password')?.errors">
+          {{ form.get('Password')?.errors?.['required']
+             ? 'Senha é obrigatória.'
+             : form.get('Password')?.errors?.['serverError'] }}
+        </div>
       </div>
+
+      <!-- Perfil -->
       <div class="field">
-        <label>Perfil</label>
-        <input type="number" formControlName="UserProfileId" placeholder="ID do perfil" />
+        <label for="profileId">Perfil (ID)</label>
+        <input
+          id="profileId"
+          type="number"
+          formControlName="UserProfileId"
+          placeholder="ID do perfil"
+          min="1"
+        />
+        <div class="error" *ngIf="form.get('UserProfileId')?.errors">
+          {{ form.get('UserProfileId')?.errors?.['required']
+             ? 'Perfil é obrigatório.'
+             : form.get('UserProfileId')?.errors?.['serverError'] }}
+        </div>
       </div>
     </div>
 
-    <button type="submit" [disabled]="loading">
-      {{ editingId ? 'Atualizar' : 'Criar' }}
-    </button>
-    <button type="button" class="secondary" (click)="resetForm()" [disabled]="loading">
-      Limpar
-    </button>
+    <div class="buttons">
+      <button type="submit" [disabled]="loading">
+        {{ editingId ? 'Atualizar' : 'Criar' }}
+      </button>
+      <button
+        type="button"
+        class="secondary"
+        (click)="resetForm()"
+        [disabled]="loading"
+      >
+        Limpar
+      </button>
+    </div>
   </form>
 
+  <!-- Tabela de Usuários -->
   <table class="user-table" *ngIf="!loading && users.length">
     <thead>
       <tr>
