@@ -78,7 +78,26 @@ services:
     networks:
       - iot_network
 
-
+       # --------------------------------------------------
+  # FRONTEND – React SPA servido por Nginx
+  # --------------------------------------------------
+  frontend-dev:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: angular_frontend_dev
+    # monta o seu código pra live-reload e isola node_modules
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    ports:
+      - "4200:4200"
+    environment:
+      # contagem de watch no Alpine precisa de polling
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - iot_network
+  
 volumes:
   postgres_data:
 
