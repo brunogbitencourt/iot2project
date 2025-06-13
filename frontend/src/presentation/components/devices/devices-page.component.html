@@ -1,0 +1,85 @@
+<div class="devices-page">
+  <h2>Gestão de Dispositivos</h2>
+
+  <!-- Formulário -->
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="device-form">
+    <div class="fields">
+      <div class="field">
+        <label for="userid">User ID</label>
+        <input id="userid" type="number" formControlName="UserId" placeholder="ID do usuário" />
+      </div>
+
+      <div class="field">
+        <label for="port">Porta</label>
+        <input id="port" type="text" formControlName="ConnectedPort" placeholder="Porta conectada" />
+      </div>
+
+      <div class="field">
+        <label for="name">Nome</label>
+        <input id="name" type="text" formControlName="Name" placeholder="Nome do dispositivo" />
+      </div>
+
+      <div class="field">
+        <label for="type">Tipo</label>
+        <input id="type" type="text" formControlName="Type" placeholder="Tipo" />
+      </div>
+
+      <div class="field">
+        <label for="category">Categoria</label>
+        <input id="category" type="text" formControlName="Category" placeholder="Categoria" />
+      </div>
+
+      <div class="field">
+        <label for="unit">Unidade</label>
+        <input id="unit" type="text" formControlName="Unit" placeholder="Unidade" />
+      </div>
+
+      <div class="field">
+        <label for="mqtt">MQTT Topic</label>
+        <input id="mqtt" type="text" formControlName="MqttTopic" placeholder="Tópico MQTT" />
+      </div>
+
+      <div class="field">
+        <label for="kafka">Kafka Topic</label>
+        <input id="kafka" type="text" formControlName="KafkaTopic" placeholder="Tópico Kafka" />
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button type="submit" [disabled]="loading">
+        {{ editingId ? 'Atualizar' : 'Criar' }}
+      </button>
+      <button type="button" class="secondary" (click)="resetForm()" [disabled]="loading">
+        Limpar
+      </button>
+    </div>
+  </form>
+
+  <!-- Tabela -->
+  <table class="device-table" *ngIf="!loading && devices.length">
+    <thead>
+      <tr>
+        <th>ID</th><th>Nome</th><th>Porta</th><th>Tipo</th><th>MQTT</th><th>Kafka</th><th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let d of devices">
+        <td>{{ d.DeviceId }}</td>
+        <td>{{ d.Name }}</td>
+        <td>{{ d.ConnectedPort }}</td>
+        <td>{{ d.Type }}</td>
+        <td>{{ d.MqttTopic }}</td>
+        <td>{{ d.KafkaTopic }}</td>
+        <td class="actions">
+          <button (click)="edit(d)">✏️</button>
+          <button (click)="delete(d.DeviceId)">🗑️</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="no-data" *ngIf="!loading && devices.length === 0">
+    Nenhum dispositivo encontrado.
+  </div>
+  <div class="loading" *ngIf="loading">Carregando...</div>
+</div>

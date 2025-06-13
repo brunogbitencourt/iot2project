@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent }           from '../presentation/components/login/login.component';
 import { AppComponent }             from './app.component';
 import { MainComponent }            from '../presentation/components/main/main.component';
-import { DispositivosComponent }    from '../presentation/components/dispositivos/dispositivos.component';
+import { DevicesPageComponent }    from '../presentation/components/devices/devices-page.component';
 import { UsuariosPageComponent }    from '../presentation/components/usuarios/usuarios-page.component';
 import { PlantaIndustrialComponent } from '../presentation/components/planta-industrial/planta-industrial.component';
 
@@ -17,7 +17,7 @@ export const routes: Routes = [
     component: MainComponent,
     children: [
       { path: '', redirectTo: 'dispositivos', pathMatch: 'full' },
-      { path: 'dispositivos', component: DispositivosComponent },
+      { path: 'dispositivos', component: DevicesPageComponent },
       { path: 'usuarios',     component: UsuariosPageComponent },
       { path: 'planta-industrial', component: PlantaIndustrialComponent }
     ]
