@@ -6,7 +6,8 @@ import { MainComponent }            from '../presentation/components/main/main.c
 import { DevicesPageComponent }    from '../presentation/components/devices/devices-page.component';
 import { UsuariosPageComponent }    from '../presentation/components/usuarios/usuarios-page.component';
 import { PlantaIndustrialComponent } from '../presentation/components/planta-industrial/planta-industrial.component';
-
+import { VisualizationPageComponent } from '../presentation/components/visualization-page/visualization-page.component';
+//
 export const routes: Routes = [
   // Raiz -> login ou main direto? Se quiser pular login, vamos direto ao main:
   { path: '', redirectTo: 'main', pathMatch: 'full' },
@@ -19,7 +20,8 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dispositivos', pathMatch: 'full' },
       { path: 'dispositivos', component: DevicesPageComponent },
       { path: 'usuarios',     component: UsuariosPageComponent },
-      { path: 'planta-industrial', component: PlantaIndustrialComponent }
+      { path: 'planta-industrial', component: PlantaIndustrialComponent },
+      { path: 'visualization', component: VisualizationPageComponent }
     ]
   },
 
