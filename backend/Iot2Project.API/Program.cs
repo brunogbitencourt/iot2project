@@ -16,6 +16,9 @@ using Microsoft.OpenApi.Models;
 using Npgsql;
 using Iot2Project.Application.Devices.UpdateDevice;
 using Iot2Project.Application.Devices.DeleteDevice;
+using Iot2Project.Application.DeviceData.GetAggregatedDeviceData;
+using Iot2Project.Application.DeviceData.GetDeviceData;
+using Iot2Project.Application.DeviceData.GetLatestDeviceData;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,6 +84,15 @@ builder.Services.AddScoped<GetDeviceByidService>();
 builder.Services.AddScoped<CreateDeviceService>();
 builder.Services.AddScoped<UpdateDeviceService>();
 builder.Services.AddScoped<DeleteDeviceService>();
+
+builder.Services.AddScoped<Iot2Project.Domain.Ports.IDeviceDataRepository,
+                           Iot2Project.Infrastructure.Persistence.Repositories.DeviceDataRepository>();
+
+builder.Services.AddScoped<Iot2Project.Application.DeviceData.GetDeviceData.GetDeviceDataService>();
+builder.Services.AddScoped<Iot2Project.Application.DeviceData.GetAggregatedDeviceData.GetAggregatedDeviceDataService>();
+builder.Services.AddScoped<Iot2Project.Application.DeviceData.GetLatestDeviceData.GetLatestDeviceDataService>();
+
+
 
 
 

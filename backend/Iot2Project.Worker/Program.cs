@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using System.Data;
 
 using Iot2Project.Domain.Ports;
-using Iot2Project.Application.Interfaces;
 
 using Iot2Project.Infrastructure.Messaging.Kafka;
 using Iot2Project.Infrastructure.Persistence.Context;

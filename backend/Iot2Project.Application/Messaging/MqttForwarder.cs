@@ -1,10 +1,6 @@
 ﻿using Iot2Project.Domain.Entities;
 using Iot2Project.Domain.Ports;
 using Microsoft.Extensions.Logging;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Iot2Project.Application.Messaging;
 
 public sealed class MqttForwarder : IMqttForwarder
 {
@@ -19,15 +15,22 @@ public sealed class MqttForwarder : IMqttForwarder
         _logger    = logger;
     }
 
-    public async Task ForwardAsync(DeviceData data, CancellationToken ct = default, string kafkaTopic = "")
+    // ← Ordem e tipos exatamente como na interface
+    public async Task ForwardAsync(DeviceData data, string kafkaTopic, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(kafkaTopic))
         {
-            _logger.LogWarning("Tópico Kafka não informado para deviceId={DeviceId}", data.DeviceId);
+            _logger.LogWarning(
+                "Tópico Kafka não informado para deviceId={DeviceId}",
+                data.DeviceId
+            );
             return;
         }
 
         await _publisher.PublishAsync(kafkaTopic, data, ct);
-        _logger.LogInformation("DeviceData (ID={DeviceId}) → Kafka {KafkaTopic}", data.DeviceId, kafkaTopic);
+        _logger.LogInformation(
+            "DeviceData (ID={DeviceId}) → Kafka {KafkaTopic}",
+            data.DeviceId, kafkaTopic
+        );
     }
 }
