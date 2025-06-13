@@ -5,7 +5,7 @@ import { AppComponent }             from './app.component';
 import { MainComponent }            from '../presentation/components/main/main.component';
 import { DevicesPageComponent }    from '../presentation/components/devices/devices-page.component';
 import { UsuariosPageComponent }    from '../presentation/components/usuarios/usuarios-page.component';
-import { PlantaIndustrialComponent } from '../presentation/components/planta-industrial/planta-industrial.component';
+import { IndustrialPlantComponent } from '../presentation/components/industrial-plant/industrial-plant.component';
 import { VisualizationPageComponent } from '../presentation/components/visualization-page/visualization-page.component';
 //
 export const routes: Routes = [
@@ -20,7 +20,7 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dispositivos', pathMatch: 'full' },
       { path: 'dispositivos', component: DevicesPageComponent },
       { path: 'usuarios',     component: UsuariosPageComponent },
-      { path: 'planta-industrial', component: PlantaIndustrialComponent },
+      { path: 'planta-industrial', component: IndustrialPlantComponent },
       { path: 'visualization', component: VisualizationPageComponent }
     ]
   },
