@@ -2,9 +2,11 @@
 // ============================================================
 using System.Data;
 using Dapper;
+using Iot2Project.Application.Devices.GetDevices;
 using Iot2Project.Application.Users.CreateUser;   // serviços Application
 using Iot2Project.Application.Users.DeleteUser;
 using Iot2Project.Application.Users.GetAllUsers;
+using Iot2Project.Application.Devices.CreateDevice;
 using Iot2Project.Application.Users.GetUserById;
 using Iot2Project.Application.Users.UpdateUser;
 using Iot2Project.Domain.Ports;                  // interfaces de repositório
@@ -12,6 +14,8 @@ using Iot2Project.Infrastructure.Persistence.Context;
 using Iot2Project.Infrastructure.Persistence.Repositories;
 using Microsoft.OpenApi.Models;
 using Npgsql;
+using Iot2Project.Application.Devices.UpdateDevice;
+using Iot2Project.Application.Devices.DeleteDevice;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,6 +75,13 @@ builder.Services.AddScoped<GetAllUsersService>();
 builder.Services.AddScoped<GetUserByIdService>();
 builder.Services.AddScoped<UpdateUserService>();
 builder.Services.AddScoped<DeleteUserService>();
+builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
+builder.Services.AddScoped<GetAllDevicesService>();
+builder.Services.AddScoped<GetDeviceByidService>();
+builder.Services.AddScoped<CreateDeviceService>();
+builder.Services.AddScoped<UpdateDeviceService>();
+builder.Services.AddScoped<DeleteDeviceService>();
+
 
 
 var app = builder.Build();
