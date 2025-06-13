@@ -1,0 +1,39 @@
+<!-- src/app/presentation/components/visualization-page/visualization-page.component.html -->
+<h1>Visualização de Telemetria</h1>
+
+<form [formGroup]="form" class="controls">
+  <label>
+    Dispositivo:
+    <select formControlName="deviceId">
+      <option [value]="null" disabled>Selecione...</option>
+      <option *ngFor="let d of devices" [value]="d.deviceId">
+        {{ d.name }}
+      </option>
+    </select>
+  </label>
+
+  <label>
+    De:
+    <input type="datetime-local" formControlName="from">
+  </label>
+
+  <label>
+    Até:
+    <input type="datetime-local" formControlName="to">
+  </label>
+
+  <label>
+    Intervalo:
+    <select formControlName="interval">
+      <option *ngFor="let i of intervals" [value]="i">{{ i }}</option>
+    </select>
+  </label>
+</form>
+
+<app-device-data-chart
+  *ngIf="form.value.deviceId"
+  [deviceId]="form.value.deviceId"
+  [from]="form.value.from"
+  [to]="form.value.to"
+  [interval]="form.value.interval">
+</app-device-data-chart>

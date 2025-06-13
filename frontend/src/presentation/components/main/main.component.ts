@@ -13,7 +13,8 @@ import { RouterModule } from '@angular/router';
           <a routerLink="dispositivos" routerLinkActive="active">Dispositivos</a>
           <a routerLink="usuarios"       routerLinkActive="active">Usuários</a>
           <a routerLink="planta-industrial" routerLinkActive="active">Planta Industrial</a>
-        </nav>
+          <a routerLink="visualization"   routerLinkActive="active">Visualização</a>
+          </nav>
       </header>
       <main class="content">
         <router-outlet></router-outlet>
