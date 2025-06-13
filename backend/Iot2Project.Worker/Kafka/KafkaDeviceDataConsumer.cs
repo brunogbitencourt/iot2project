@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Iot2Project.Application.Interfaces;
 
 namespace Iot2Project.Worker.Kafka
 {

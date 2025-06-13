@@ -78,7 +78,7 @@ public sealed class MqttSubscriberService : BackgroundService
             }
 
 
-            await forwarder.ForwardAsync(incoming, ct, device.KafkaTopic);
+            await forwarder.ForwardAsync(incoming, device.KafkaTopic, ct);
         };
 
         // 2) Conecta ao broker
