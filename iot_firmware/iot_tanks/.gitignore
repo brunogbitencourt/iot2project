@@ -1,0 +1,34 @@
+# Diretórios de build e artefatos temporários
+/build/
+/.idf/
+/CMakeCache.txt
+/CMakeFiles/
+/Makefile
+
+# Arquivos de configuração
+sdkconfig
+sdkconfig.old
+
+# Diretórios e arquivos do Visual Studio Code
+.vscode/
+
+# Diretórios e arquivos do IntelliJ IDEA
+.idea/
+
+# Arquivos temporários
+*.bin
+*.elf
+*.map
+*.a
+*.d
+
+# Diretórios do ESP32
+.esp32/
+
+# Arquivos de log
+*.log
+
+# Arquivos de backup e temporários de editores
+*.swp
+*.swo
+*.bak

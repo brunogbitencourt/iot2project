@@ -11,7 +11,7 @@ export interface DeviceDto {
 
 @Injectable({ providedIn: 'root' })
 export class DeviceService {
-  private readonly base = '/api/Devices';  // ou '/api/devices'
+  private readonly base = 'http://localhost:5000/api/Devices';  // ou '/api/devices'
 
   constructor(private http: HttpClient) {}
 
